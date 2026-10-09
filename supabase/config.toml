@@ -1,0 +1,65 @@
+# Supabase CLI configuration (local development). Production settings live in the Supabase dashboard.
+project_id = "infinity-luxury-spa"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+enabled = true
+site_url = "infinityspa://"
+additional_redirect_urls = ["infinityspa://auth-callback", "exp://127.0.0.1:8081/--/auth-callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.external.google]
+enabled = false
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+
+[auth.external.apple]
+enabled = false
+client_id = "env(APPLE_CLIENT_ID)"
+secret = "env(APPLE_CLIENT_SECRET)"
+
+[auth.sms]
+enable_signup = false
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[functions.payment-init]
+verify_jwt = true
+[functions.payment-verify]
+verify_jwt = true
+[functions.process-refund]
+verify_jwt = true
+[functions.delete-account]
+verify_jwt = true
+# Webhooks are authenticated by provider signature, not by a Supabase JWT.
+[functions.paystack-webhook]
+verify_jwt = false
+[functions.flutterwave-webhook]
+verify_jwt = false
+# Cron-invoked; authenticated by the x-cron-secret header.
+[functions.dispatch-notifications]
+verify_jwt = false

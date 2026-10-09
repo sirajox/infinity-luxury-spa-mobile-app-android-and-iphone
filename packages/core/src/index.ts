@@ -7,3 +7,4 @@ export * from './time';
 export * from './availability';
 export * from './schemas';
 export * from './constants';
+export * from './database.types';
