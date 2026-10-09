@@ -1,9 +1,19 @@
 import { z } from 'zod';
 
-const nigerianPhone = z
+/** Accepts 0803…, 803…, 234803… or +234803… and returns the international form (+234…). */
+export function normalizeNigerianPhone(input: string): string {
+  const d = input.replace(/[^\d+]/g, '');
+  if (d.startsWith('+234')) return d;
+  if (d.startsWith('234')) return `+${d}`;
+  if (d.startsWith('0')) return `+234${d.slice(1)}`;
+  return `+234${d}`;
+}
+
+export const nigerianPhone = z
   .string()
   .trim()
-  .regex(/^(\+234|0)[789][01]\d{8}$/, 'Enter a valid Nigerian phone number');
+  .transform(normalizeNigerianPhone)
+  .pipe(z.string().regex(/^\+234[789][01]\d{8}$/, 'Enter a valid Nigerian phone number'));
 
 export const emailSchema = z.string().trim().toLowerCase().email('Enter a valid email address');
 

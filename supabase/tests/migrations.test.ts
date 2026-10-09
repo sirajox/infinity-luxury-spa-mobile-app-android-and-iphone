@@ -56,3 +56,17 @@ describe('schema', () => {
     expect(res.rows.some((r) => r.is_published)).toBe(false);
   });
 });
+
+describe('catalogue stats views', () => {
+  it('count only active treatments and expose a from-price', async () => {
+    const res = await db.query<{ treatment_count: number; from_price_kobo: string | number | null }>(
+      `select s.treatment_count, s.from_price_kobo from public.service_category_stats s
+       join public.service_categories c on c.id = s.category_id where c.slug = 'massage'`);
+    expect(res.rows[0]!.treatment_count).toBe(1);
+    expect(Number(res.rows[0]!.from_price_kobo)).toBe(3_000_000);
+    await db.query(`update public.services set is_active = false where slug = 'demo-swedish-massage'`);
+    const after = await db.query(`select 1 from public.service_category_stats s join public.service_categories c on c.id = s.category_id where c.slug = 'massage'`);
+    expect(after.rows).toHaveLength(0);
+    await db.query(`update public.services set is_active = true where slug = 'demo-swedish-massage'`);
+  });
+});

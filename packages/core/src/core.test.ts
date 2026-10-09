@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BOOKING_TRANSITIONS, ORDER_TRANSITIONS, DEFAULT_ROLE_PERMISSIONS, PERMISSIONS,
   calculateCouponDiscount, canTransition, computeOrderTotals, formatNaira, generateSlots,
-  hasPermission, nairaToKobo, percentOf, signUpSchema, splitBookingPayment, zonedTimeToUtc,
+  hasPermission, nairaToKobo, normalizeNigerianPhone, percentOf, signUpSchema, splitBookingPayment, zonedTimeToUtc,
 } from './index';
 
 describe('money', () => {
@@ -89,6 +89,12 @@ describe('schemas and permissions', () => {
       fullName: 'A', email: 'x', phone: '1', password: 'a', confirmPassword: 'b', acceptTerms: false,
     });
     expect(bad.success).toBe(false);
+  });
+  it('normalises Nigerian phone numbers to +234 form', () => {
+    expect(normalizeNigerianPhone('0803 123 4567')).toBe('+2348031234567');
+    expect(normalizeNigerianPhone('803 123 4567')).toBe('+2348031234567');
+    expect(normalizeNigerianPhone('2348031234567')).toBe('+2348031234567');
+    expect(normalizeNigerianPhone('+234 803 123 4567')).toBe('+2348031234567');
   });
   it('gives finance managers refunds but not inventory adjustments', () => {
     expect(hasPermission(DEFAULT_ROLE_PERMISSIONS.finance_manager, 'refunds.create')).toBe(true);

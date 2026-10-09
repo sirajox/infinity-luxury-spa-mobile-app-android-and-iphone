@@ -4,6 +4,9 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   public: {
     Tables: {
       addresses: {
@@ -2194,6 +2197,7 @@ export type Database = {
           average: number | null
           review_count: number | null
         }
+        Relationships: []
       }
       product_stock_status: {
         Row: {
@@ -2202,6 +2206,15 @@ export type Database = {
           in_stock: boolean | null
           low_stock: boolean | null
         }
+        Relationships: []
+      }
+      service_category_stats: {
+        Row: {
+          category_id: string | null
+          treatment_count: number | null
+          from_price_kobo: number | null
+        }
+        Relationships: []
       }
       service_ratings: {
         Row: {
@@ -2209,6 +2222,15 @@ export type Database = {
           average: number | null
           review_count: number | null
         }
+        Relationships: []
+      }
+      service_subcategory_stats: {
+        Row: {
+          subcategory_id: string | null
+          treatment_count: number | null
+          from_price_kobo: number | null
+        }
+        Relationships: []
       }
       staff_ratings: {
         Row: {
@@ -2216,6 +2238,7 @@ export type Database = {
           average: number | null
           review_count: number | null
         }
+        Relationships: []
       }
     }
     Functions: {

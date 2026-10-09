@@ -1,5 +1,0 @@
-{
-  "plugins": [
-    "@sentry/react-native"
-  ]
-}
