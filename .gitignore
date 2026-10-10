@@ -21,3 +21,11 @@ android/
 *.mobileprovision
 coverage/
 .expo-export/
+
+# Never commit credential files, however they are named
+env
+*.env
+secrets*
+*token*
+AGENTS.md
+.expo-export/

@@ -1,12 +1,21 @@
 {
   "name": "infinity-luxury-spa",
   "private": true,
-  "workspaces": ["apps/*", "packages/*", "supabase/tests"],
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "supabase/tests"
+  ],
   "scripts": {
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:db": "npm run test -w @infinity/db-tests",
     "build:admin": "npm run build -w @infinity/admin"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "@types/react": "~19.2.4"
   }
 }
