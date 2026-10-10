@@ -17,7 +17,7 @@ create table public.payments (
   reference text not null unique,
   provider public.payment_provider not null,
   purpose public.payment_purpose not null,
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   booking_id uuid references public.bookings (id) on delete restrict,
   order_id uuid references public.orders (id) on delete restrict,
   membership_id uuid references public.memberships (id) on delete restrict,

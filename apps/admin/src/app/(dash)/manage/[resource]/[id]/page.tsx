@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { BranchExtras } from '../extras/branch';
 import { PackageExtras } from '../extras/package';
 import { StaffExtras } from '../extras/staff';
+import { ProductExtras } from '../extras/product';
 import { deleteResource, saveResource } from '../actions';
 
 export default async function ResourceEdit({ params, searchParams }: { params: Promise<{ resource: string; id: string }>; searchParams: Promise<{ ok?: string }> }) {
@@ -64,6 +65,7 @@ export default async function ResourceEdit({ params, searchParams }: { params: P
             {def.slug === 'branches' ? <BranchExtras id={id} canWrite={canWrite} /> : null}
             {def.slug === 'staff' ? <StaffExtras id={id} canWrite={canWrite} /> : null}
             {def.slug === 'packages' ? <PackageExtras id={id} canWrite={canWrite} /> : null}
+            {def.slug === 'products' ? <ProductExtras id={id} canWrite={canWrite} /> : null}
           </aside>
         ) : null}
       </div>

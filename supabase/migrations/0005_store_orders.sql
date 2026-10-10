@@ -250,7 +250,7 @@ create type public.fulfilment_method as enum ('delivery', 'pickup');
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   number text not null unique,
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   branch_id uuid not null references public.branches (id) on delete restrict,
   status public.order_status not null default 'placed',
   fulfilment public.fulfilment_method not null,
@@ -682,7 +682,7 @@ grant execute on function public.expire_stale_orders() to service_role;
 create table public.coupon_redemptions (
   id uuid primary key default gen_random_uuid(),
   coupon_id uuid not null references public.coupons (id) on delete cascade,
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   order_id uuid references public.orders (id) on delete set null,
   amount_kobo bigint not null,
   created_at timestamptz not null default now(),

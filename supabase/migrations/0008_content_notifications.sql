@@ -349,7 +349,7 @@ grant execute on function public.send_broadcast(text, text, text, uuid, public.n
 -- ---------------------------------------------------------------------------
 create table public.support_tickets (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   branch_id uuid references public.branches (id) on delete set null,
   subject text not null check (char_length(subject) between 3 and 200),
   status text not null default 'open' check (status in ('open', 'pending', 'resolved', 'closed')),

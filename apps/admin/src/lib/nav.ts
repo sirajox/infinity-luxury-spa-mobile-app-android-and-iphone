@@ -36,7 +36,7 @@ export const NAV: NavGroup[] = [
       { href: '/manage/service-categories', label: 'Treatment categories', icon: FolderTree, permission: 'categories.manage' },
       { href: '/manage/service-subcategories', label: 'Subcategories', icon: Tags, permission: 'categories.manage' },
       { href: '/manage/services', label: 'Treatments', icon: Sparkles, permission: 'treatments.manage' },
-      { href: '/products', label: 'Products', icon: Package, permission: 'products.view' },
+      { href: '/manage/products', label: 'Products', icon: Package, permission: 'products.view' },
       { href: '/manage/product-categories', label: 'Product categories', icon: FolderTree, permission: 'categories.manage' },
       { href: '/manage/packages', label: 'Packages', icon: Gift, permission: 'packages.manage' },
       { href: '/manage/membership-plans', label: 'Memberships', icon: Crown, permission: 'memberships.manage' },

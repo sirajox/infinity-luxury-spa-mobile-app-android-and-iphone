@@ -2256,6 +2256,7 @@ export type Database = {
       create_refund_request: { Args: { p_payment: string | null; p_amount: number | null; p_reason: string | null }; Returns: Database["public"]["Tables"]["refunds"]["Row"] }
       dashboard_summary: { Args: { p_from: string | null; p_to: string | null; p_branch?: string | null }; Returns: Json }
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json }
+      find_user_by_email: { Args: { p_email: string | null }; Returns: { id: string; full_name: string }[] }
       get_available_days: { Args: { p_service: string | null; p_branch: string | null; p_staff: string | null; p_from: string | null; p_to: string | null }; Returns: { day: string; slot_count: number }[] }
       get_available_slots: { Args: { p_service: string | null; p_branch: string | null; p_staff: string | null; p_date: string | null; p_exclude_booking?: string | null }; Returns: { slot_time: string; slot_staff_id: string; slot_starts_at: string }[] }
       get_payment_receipt: { Args: { p_payment: string | null }; Returns: Json }
@@ -2267,6 +2268,7 @@ export type Database = {
       permitted_branches: { Args: { p_permission: string | null }; Returns: string }
       quote_cart: { Args: { p_branch: string | null; p_fulfilment: Database["public"]["Enums"]["fulfilment_method"] | null; p_state?: string | null; p_coupon?: string | null }; Returns: Json }
       record_manual_payment: { Args: { p_booking: string | null; p_amount_kobo: number | null; p_note: string | null }; Returns: Database["public"]["Tables"]["payments"]["Row"] }
+      reject_refund: { Args: { p_refund: string | null; p_reason: string | null }; Returns: undefined }
       reschedule_booking: { Args: { p_booking: string | null; p_date: string | null; p_time: string | null }; Returns: Database["public"]["Tables"]["bookings"]["Row"] }
       revenue_by_day: { Args: { p_from: string | null; p_to: string | null; p_branch?: string | null }; Returns: { day: string; revenue_kobo: number; bookings: number; orders: number }[] }
       send_broadcast: { Args: { p_title: string | null; p_body: string | null; p_segment?: string | null; p_branch?: string | null; p_kind?: Database["public"]["Enums"]["notification_kind"] | null }; Returns: number }

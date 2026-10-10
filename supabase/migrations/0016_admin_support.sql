@@ -42,3 +42,32 @@ begin
 end $$;
 revoke all on function public.record_manual_payment(uuid, bigint, text) from public, anon;
 grant execute on function public.record_manual_payment(uuid, bigint, text) to authenticated;
+
+-- Decline a queued refund (e.g. a cancellation outside the free window that staff decide not to honour).
+create or replace function public.reject_refund(p_refund uuid, p_reason text)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_r public.refunds;
+  v_branch uuid;
+begin
+  select * into v_r from public.refunds where id = p_refund for update;
+  if not found then raise exception 'refund_not_found' using errcode = 'P0001'; end if;
+  select public.payment_branch_id(p.booking_id, p.order_id) into v_branch from public.payments p where p.id = v_r.payment_id;
+  if not public.has_permission('refunds.create', v_branch) then raise exception 'forbidden' using errcode = '42501'; end if;
+  if v_r.status not in ('requested', 'failed') then raise exception 'refund_not_pending' using errcode = 'P0001'; end if;
+  if coalesce(trim(p_reason), '') = '' then raise exception 'reason_required' using errcode = 'P0001'; end if;
+  update public.refunds set status = 'rejected', failure_reason = left(p_reason, 500), processed_by = (select auth.uid()) where id = p_refund;
+end $$;
+revoke all on function public.reject_refund(uuid, text) from public, anon;
+grant execute on function public.reject_refund(uuid, text) to authenticated;
+
+-- Lookup used by "Add staff": finds an existing account by exact email. Only for users.manage holders,
+-- returns just the id and name so it cannot be used to browse customer data.
+create or replace function public.find_user_by_email(p_email text)
+returns table (id uuid, full_name text)
+language sql stable security definer set search_path = '' as $$
+  select p.id, p.full_name from public.profiles p
+  where public.has_permission('users.manage') and p.deleted_at is null and lower(p.email) = lower(trim(p_email));
+$$;
+revoke all on function public.find_user_by_email(text) from public, anon;
+grant execute on function public.find_user_by_email(text) to authenticated;

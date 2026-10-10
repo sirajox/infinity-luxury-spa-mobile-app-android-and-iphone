@@ -111,3 +111,34 @@ describe('revenue_by_day', () => {
     expect(await failure(as(db, { userId: owner }, () => db.query(`select * from public.revenue_by_day($1, $2, null)`, ['2020-01-01', '2026-01-01'])))).toMatch(/range_too_large/);
   });
 });
+
+describe('reject_refund', () => {
+  it('lets finance decline a pending refund once, with a reason, and no one else', async () => {
+    const finance = await createUser(db, 'fin-reject@example.com');
+    await grantRole(db, finance, 'finance_manager');
+    const pay = await db.query<{ id: string }>(`select id from public.payments where status = 'succeeded' limit 1`);
+    await db.query(`insert into public.refunds (payment_id, amount_kobo, reason) values ($1, 1000, 'test')`, [pay.rows[0]!.id]);
+    const refund = (await db.query<{ id: string }>(`select id from public.refunds where status = 'requested' limit 1`)).rows[0]!.id;
+    expect(await failure(as(db, { userId: customer }, () => db.query(`select public.reject_refund($1, 'no')`, [refund])))).toMatch(/forbidden/);
+    expect(await failure(as(db, { userId: finance }, () => db.query(`select public.reject_refund($1, '')`, [refund])))).toMatch(/reason_required/);
+    await as(db, { userId: finance }, () => db.query(`select public.reject_refund($1, 'Outside the free cancellation window')`, [refund]));
+    const row = await db.query<{ status: string; processed_by: string }>(`select status, processed_by from public.refunds where id = $1`, [refund]);
+    expect(row.rows[0]).toEqual({ status: 'rejected', processed_by: finance });
+    expect(await failure(as(db, { userId: finance }, () => db.query(`select public.reject_refund($1, 'again')`, [refund])))).toMatch(/refund_not_pending/);
+  });
+});
+
+describe('find_user_by_email', () => {
+  it('resolves exact emails for user managers only', async () => {
+    const hr = await createUser(db, 'hr-find@example.com');
+    await db.query(`insert into public.roles (key, name) values ('finder', 'Finder') on conflict do nothing`);
+    await db.query(`insert into public.role_permissions (role_id, permission_key) select id, 'users.manage' from public.roles where key = 'finder' on conflict do nothing`);
+    await grantRole(db, hr, 'finder');
+    const hit = await as(db, { userId: hr }, () => db.query<{ id: string }>(`select * from public.find_user_by_email(' CUSTOMER@example.com ')`));
+    expect(hit.rows[0]?.id).toBe(customer);
+    const partial = await as(db, { userId: hr }, () => db.query(`select * from public.find_user_by_email('customer')`));
+    expect(partial.rows).toHaveLength(0);
+    const denied = await as(db, { userId: customer }, () => db.query(`select * from public.find_user_by_email('customer@example.com')`));
+    expect(denied.rows).toHaveLength(0);
+  });
+});

@@ -16,7 +16,7 @@ create type public.payment_option as enum ('full', 'advance');
 create table public.bookings (
   id uuid primary key default gen_random_uuid(),
   reference text not null unique,
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   service_id uuid not null references public.services (id) on delete restrict,
   branch_id uuid not null references public.branches (id) on delete restrict,
   staff_id uuid not null references public.staff (id) on delete restrict,

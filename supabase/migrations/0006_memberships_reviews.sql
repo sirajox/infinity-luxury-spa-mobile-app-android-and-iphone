@@ -28,7 +28,7 @@ create trigger audit_membership_plans after insert or update or delete on public
 
 create table public.memberships (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   plan_id uuid references public.membership_plans (id) on delete set null,
   status public.membership_status not null default 'pending',
   plan_snapshot jsonb not null,
@@ -108,7 +108,7 @@ create index package_items_package_idx on public.package_items (package_id);
 
 create table public.package_purchases (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   package_id uuid references public.packages (id) on delete set null,
   status text not null default 'pending' check (status in ('pending', 'active', 'expired', 'cancelled')),
   package_snapshot jsonb not null,
@@ -146,7 +146,7 @@ create type public.review_status as enum ('pending', 'approved', 'rejected');
 
 create table public.reviews (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users (id) on delete set null,
+  user_id uuid references public.profiles (id) on delete set null,
   target public.review_target not null,
   service_id uuid references public.services (id) on delete cascade,
   staff_id uuid references public.staff (id) on delete cascade,
