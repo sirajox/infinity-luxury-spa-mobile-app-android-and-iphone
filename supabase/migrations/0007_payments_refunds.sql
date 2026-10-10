@@ -5,7 +5,8 @@
 --   * Only service_role (Edge Functions that have verified the provider's webhook signature or called the
 --     provider's verify API) may call apply_payment_success()/mark_payment_failed().
 
-create type public.payment_provider as enum ('paystack', 'flutterwave');
+-- 'manual' marks payments recorded by staff at the branch (cash / POS); it is never offered to customers.
+create type public.payment_provider as enum ('paystack', 'flutterwave', 'manual');
 create type public.payment_purpose as enum ('booking', 'booking_balance', 'order', 'membership', 'package');
 create type public.payment_status as enum (
   'pending', 'processing', 'succeeded', 'failed', 'abandoned', 'refunded', 'partially_refunded'

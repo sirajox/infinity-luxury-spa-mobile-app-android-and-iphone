@@ -2243,6 +2243,7 @@ export type Database = {
     }
     Functions: {
       adjust_inventory: { Args: { p_branch: string | null; p_variant: string | null; p_delta: number | null; p_reason: string | null }; Returns: Database["public"]["Tables"]["inventory"]["Row"] }
+      admin_create_booking: { Args: { p_customer: string | null; p_service: string | null; p_branch: string | null; p_staff: string | null; p_date: string | null; p_time: string | null }; Returns: Database["public"]["Tables"]["bookings"]["Row"] }
       cancel_booking: { Args: { p_booking: string | null; p_reason?: string | null }; Returns: Database["public"]["Tables"]["bookings"]["Row"] }
       cancel_unpaid_order: { Args: { p_order: string | null }; Returns: undefined }
       cart_add: { Args: { p_variant: string | null; p_delta: number | null }; Returns: number }
@@ -2260,11 +2261,14 @@ export type Database = {
       get_payment_receipt: { Args: { p_payment: string | null }; Returns: Json }
       has_permission: { Args: { p_permission: string | null; p_branch?: string | null }; Returns: boolean }
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean }
+      my_permissions: { Args: Record<PropertyKey, never>; Returns: { permission_key: string; branch_id: string }[] }
       my_staff_id: { Args: Record<PropertyKey, never>; Returns: string }
       payment_branch_id: { Args: { p_booking: string | null; p_order: string | null }; Returns: string }
       permitted_branches: { Args: { p_permission: string | null }; Returns: string }
       quote_cart: { Args: { p_branch: string | null; p_fulfilment: Database["public"]["Enums"]["fulfilment_method"] | null; p_state?: string | null; p_coupon?: string | null }; Returns: Json }
+      record_manual_payment: { Args: { p_booking: string | null; p_amount_kobo: number | null; p_note: string | null }; Returns: Database["public"]["Tables"]["payments"]["Row"] }
       reschedule_booking: { Args: { p_booking: string | null; p_date: string | null; p_time: string | null }; Returns: Database["public"]["Tables"]["bookings"]["Row"] }
+      revenue_by_day: { Args: { p_from: string | null; p_to: string | null; p_branch?: string | null }; Returns: { day: string; revenue_kobo: number; bookings: number; orders: number }[] }
       send_broadcast: { Args: { p_title: string | null; p_body: string | null; p_segment?: string | null; p_branch?: string | null; p_kind?: Database["public"]["Enums"]["notification_kind"] | null }; Returns: number }
       staff_can_view_customer: { Args: { p_customer: string | null }; Returns: boolean }
       toggle_wishlist: { Args: { p_product?: string | null; p_service?: string | null }; Returns: boolean }
@@ -2281,7 +2285,7 @@ export type Database = {
       notification_kind: "booking" | "order" | "payment" | "membership" | "offer" | "system"
       order_status: "placed" | "payment_confirmed" | "processing" | "ready_for_pickup" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "refunded"
       payment_option: "full" | "advance"
-      payment_provider: "paystack" | "flutterwave"
+      payment_provider: "paystack" | "flutterwave" | "manual"
       payment_purpose: "booking" | "booking_balance" | "order" | "membership" | "package"
       payment_status: "pending" | "processing" | "succeeded" | "failed" | "abandoned" | "refunded" | "partially_refunded"
       price_type: "fixed" | "from" | "quote"

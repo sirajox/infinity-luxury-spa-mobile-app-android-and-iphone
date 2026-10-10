@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+/* Brand tokens, matching apps/mobile/src/theme and packages/core COLORS. */
+@theme {
+  --color-ink: #0d0d0d;
+  --color-gold: #a68917;
+  --color-gold-text: #88700f;
+  --color-gold-soft: #f6f1e0;
+  --color-warm: #fbf8ef;
+  --color-paper: #ffffff;
+  --color-grey-50: #f7f7f7;
+  --color-grey-200: #e6e6e6;
+  --color-grey-400: #9a9a9a;
+  --color-grey-600: #666666;
+  --color-success: #2e7d4f;
+  --color-success-soft: #e7f3ec;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbe9e7;
+
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-lora), ui-serif, Georgia, serif;
+
+  --radius-card: 16px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body { @apply bg-grey-50 font-sans text-ink antialiased; }
+  h1, h2, h3 { @apply font-serif; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-gold; }
+  /* Respect the OS "reduce motion" setting everywhere. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn border-ink bg-ink text-white hover:bg-black/85;
+}
+
+@utility btn-gold {
+  @apply btn border-gold bg-gold text-ink hover:brightness-95;
+}
+
+@utility btn-outline {
+  @apply btn border-grey-200 bg-white text-ink hover:bg-grey-50;
+}
+
+@utility btn-danger {
+  @apply btn border-danger bg-danger text-white hover:brightness-95;
+}
+
+@utility btn-ghost {
+  @apply btn border-transparent bg-transparent text-gold-text hover:bg-gold-soft;
+}
+
+@utility btn-sm {
+  @apply min-h-9 rounded-lg px-3 text-xs;
+}
+
+@utility card {
+  @apply rounded-[var(--radius-card)] border border-grey-200 bg-white shadow-[var(--shadow-card)];
+}
+
+@utility input {
+  @apply min-h-11 w-full rounded-xl border border-grey-200 bg-white px-3.5 text-sm placeholder:text-grey-400 focus:border-ink;
+}
+
+@utility label {
+  @apply mb-1.5 block text-xs font-medium text-grey-600;
+}
+
+@utility th {
+  @apply whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-grey-600;
+}
+
+@utility td {
+  @apply px-4 py-3 text-sm;
+}

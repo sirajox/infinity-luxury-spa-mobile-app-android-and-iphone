@@ -5,6 +5,9 @@
 -- staff member at overlapping times. Expired holds are released by expire_stale_bookings() (scheduled)
 -- and opportunistically inside create_booking().
 
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
 create type public.booking_status as enum (
   'pending', 'confirmed', 'checked_in', 'in_progress', 'completed', 'cancelled', 'no_show', 'expired'
 );
@@ -254,7 +257,8 @@ grant execute on function public.get_available_days(uuid, uuid, uuid, date, date
 -- ---------------------------------------------------------------------------
 -- Booking creation (the only supported way for customers to create a booking)
 -- ---------------------------------------------------------------------------
-create or replace function public.create_booking(
+create or replace function private.book_slot(
+  p_customer uuid,
   p_service uuid,
   p_branch uuid,
   p_staff uuid,
@@ -265,7 +269,7 @@ create or replace function public.create_booking(
 returns public.bookings
 language plpgsql security definer set search_path = '' as $$
 declare
-  v_uid uuid := (select auth.uid());
+  v_uid uuid := p_customer;
   v_service public.services;
   v_tz text;
   v_staff uuid;
@@ -328,8 +332,44 @@ begin
 
   return v_booking;
 end $$;
+
+-- Customer-facing entry point: always books for the authenticated caller.
+create or replace function public.create_booking(
+  p_service uuid, p_branch uuid, p_staff uuid, p_date date, p_time time, p_payment_option public.payment_option
+)
+returns public.bookings
+language plpgsql security definer set search_path = '' as $$
+begin
+  if (select auth.uid()) is null then
+    raise exception 'authentication_required' using errcode = '28000';
+  end if;
+  return private.book_slot((select auth.uid()), p_service, p_branch, p_staff, p_date, p_time, p_payment_option);
+end $$;
 revoke all on function public.create_booking(uuid, uuid, uuid, date, time, public.payment_option) from public, anon;
 grant execute on function public.create_booking(uuid, uuid, uuid, date, time, public.payment_option) to authenticated;
+
+-- Staff booking on behalf of a customer (walk-in or phone booking). The booking is confirmed immediately;
+-- payment is taken at the branch and recorded with record_manual_payment().
+create or replace function public.admin_create_booking(
+  p_customer uuid, p_service uuid, p_branch uuid, p_staff uuid, p_date date, p_time time
+)
+returns public.bookings
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_b public.bookings;
+begin
+  if not public.has_permission('bookings.create', p_branch) then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  if not exists (select 1 from public.profiles where id = p_customer and deleted_at is null) then
+    raise exception 'customer_not_found' using errcode = 'P0001';
+  end if;
+  v_b := private.book_slot(p_customer, p_service, p_branch, p_staff, p_date, p_time, 'full');
+  update public.bookings set status = 'confirmed', hold_expires_at = null where id = v_b.id returning * into v_b;
+  return v_b;
+end $$;
+revoke all on function public.admin_create_booking(uuid, uuid, uuid, uuid, date, time) from public, anon;
+grant execute on function public.admin_create_booking(uuid, uuid, uuid, uuid, date, time) to authenticated;
 
 -- Reschedule within policy. Staff with bookings.update may bypass the customer notice window.
 create or replace function public.reschedule_booking(p_booking uuid, p_date date, p_time time)
