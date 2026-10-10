@@ -13,7 +13,7 @@ apps/mobile      Expo SDK 57, Expo Router, TypeScript strict
 apps/admin       Next.js App Router + Tailwind (staff dashboard)
 packages/core    Shared, platform-independent: money (integer kobo), schemas (zod), status machines,
                  permissions matrix, slot maths, generated DB types (database.types.ts)
-supabase/migrations  Source of truth for the database (0001…0013)
+supabase/migrations  Source of truth for the database (0001…0017)
 supabase/functions   Edge Functions (Deno): payment-init, payment-verify, paystack/flutterwave webhooks,
                      process-refund, delete-account, dispatch-notifications; _shared helpers
 supabase/tests       DB + function tests that run every migration in an in-process Postgres (PGlite)
@@ -30,7 +30,8 @@ docs/                architecture, database, payments, security, deployment, tes
 | Regenerate DB types after a migration | `npm run gen:types -w @infinity/db-tests` |
 | Mobile typecheck / dev server | `npm run typecheck -w @infinity/mobile` · `npm run start -w @infinity/mobile` |
 | Mobile bundle check | `npm run export:check -w @infinity/mobile` |
-| Admin build | `npm run build:admin` |
+| Admin build / tests | `npm run build:admin` · `npm test -w @infinity/admin` |
+| Whole repo | `npm run typecheck` · `npm test` · `npm run test:db` |
 
 pnpm was rejected: it needs symlink privileges that are unavailable on this Windows setup. npm workspaces use junctions.
 
@@ -59,4 +60,10 @@ pnpm was rejected: it needs symlink privileges that are unavailable on this Wind
 
 ## Status & next steps
 
-See `docs/progress.md` (kept current at each checkpoint).
+See `docs/progress.md` (kept current at each checkpoint). Verified: DB (69 tests), core (15), mobile (19 + Android/iOS bundles), admin (13 + production build). Unverified until accounts exist: live Supabase, Edge Functions, payment providers, on-device behaviour.
+
+## Admin conventions
+
+- Simple catalogue/content tables are defined declaratively in `apps/admin/src/lib/resources/defs.ts` (list/edit/validation/upload/join-sync come from the engine). Sensitive operations have dedicated actions in each page folder using `formAction` (auth + permission + zod + error mapping).
+- Pages call `requireAccess(permission)`; the UI hides by `my_permissions()` but RLS is the real gate. Next 16: `params`/`searchParams` are Promises; middleware is `proxy.ts`.
+- Tailwind v4: shared classes are `@utility` blocks in `globals.css`.
